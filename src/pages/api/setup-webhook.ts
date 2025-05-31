@@ -12,7 +12,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Get the webhook URL from the environment
-    const webhookUrl = `${process.env.VERCEL_URL}/api/webhook`;
+    const webhookUrl =
+      process.env.NODE_ENV === 'production'
+        ? 'https://exec-assistant.vercel.app/api/webhook'
+        : `${process.env.VERCEL_URL}/api/webhook`;
     
     // Set the webhook
     await bot.setWebHook(webhookUrl);
