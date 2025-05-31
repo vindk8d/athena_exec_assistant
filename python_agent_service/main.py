@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -9,9 +9,25 @@ import httpx
 
 load_dotenv()
 
-app = FastAPI()
+app = FastAPI(
+    title="Athena Executive Assistant API",
+    description="API service for the Athena Executive Assistant",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-TELEGRAM_WEBHOOK_URL = "https://athena-exec-assistant.onrender.com/webhook/telegram"
+TELEGRAM_WEBHOOK_URL = "https://api.athena-exec-assistant.onrender.com/webhook/telegram"
+
+# Enable HTTPS redirection
+@app.middleware("http")
+async def redirect_http_to_https(request: Request, call_next):
+    if request.url.scheme == "http":
+        url = request.url.replace(scheme="https")
+        return RedirectResponse(url=str(url))
+    response = await call_next(request)
+    return response
 
 app.add_middleware(
     CORSMiddleware,
