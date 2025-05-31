@@ -18,7 +18,7 @@ app = FastAPI(
 )
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-TELEGRAM_WEBHOOK_URL = "https://api.athena-exec-assistant.onrender.com/webhook"
+TELEGRAM_WEBHOOK_URL = "https://api.athena-exec-assistant.onrender.com/webhook/telegram"
 
 # Enable HTTPS redirection
 @app.middleware("http")
@@ -67,38 +67,12 @@ def chat(req: ChatRequest):
 async def telegram_webhook(request: Request):
     try:
         data = await request.json()
-        print(f"Received webhook data: {data}")  # Add logging
-        message = data.get("message", {})
-        chat_id = message.get("chat", {}).get("id")
-        text = message.get("text", "")
+        print(f"Received webhook data: {data}")
         
-        if not chat_id or not text:
-            print("Invalid message format")
-            return {"status": "error", "message": "Invalid message format"}
-        
-        # Process the message using your agent
-        response = agent_respond(
-            contact={"name": message.get("from", {}).get("first_name", "User")},
-            user_message=text,
-            history=[],  # You might want to implement message history storage
-            is_new=True  # You might want to implement contact tracking
-        )
-        
-        print(f"Generated response: {response}")  # Add logging
-        
-        # Send response back to Telegram
-        async with httpx.AsyncClient() as client:
-            await client.post(
-                f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-                json={
-                    "chat_id": chat_id,
-                    "text": response
-                }
-            )
-        
-        return {"status": "success"}
+        # Just return a success response for now
+        return {"status": "success", "message": "Webhook received"}
     except Exception as e:
-        print(f"Error processing webhook: {str(e)}")
+        print(f"Error: {str(e)}")
         return {"status": "error", "message": str(e)}
     data = await request.json()
     message = data.get("message", {})
