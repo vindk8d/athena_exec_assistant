@@ -47,7 +47,12 @@ class ChatResponse(BaseModel):
 
 @app.get("/")
 def root():
-    return {"status": "ok"}
+    return {"status": "ok", "message": "Service is running"}
+
+@app.get("/test")
+def test_endpoint():
+    """Simple test endpoint to verify service accessibility"""
+    return {"status": "success", "message": "Test endpoint working"}
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
